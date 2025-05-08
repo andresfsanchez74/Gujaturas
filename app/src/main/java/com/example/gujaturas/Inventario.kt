@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class Inventario : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) { //aaaa
+    override fun onCreate(savedInstanceState: Bundle?) { //aaaaaaa
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_inventario)
 
