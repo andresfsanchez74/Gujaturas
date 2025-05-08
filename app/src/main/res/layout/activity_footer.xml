@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Footer -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/footerCard"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="6dp"
+        android:padding="10dp"
+        app:cardBackgroundColor="@color/turquesa"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <!-- Contenedor horizontal -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <!-- Inventario -->
+            <LinearLayout
+                android:id="@+id/navInventario"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <!-- Icono y texto para Inventario -->
+                <FrameLayout
+                    android:id="@+id/bgCircleInventario"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_circle_nav_unselected"
+                    android:gravity="center"
+                    android:layout_gravity="center">
+                    <ImageView
+                        android:id="@+id/iconInventarioFooter"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/icono_inventario"
+                        app:tint="@android:color/black" />
+                </FrameLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Inventario"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+
+            <!-- Ventas -->
+            <LinearLayout
+                android:id="@+id/navVentas"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <!-- Icono y texto para Ventas -->
+                <FrameLayout
+                    android:id="@+id/bgCircleVentas"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_circle_nav_unselected"
+                    android:gravity="center">
+                    <ImageView
+                        android:id="@+id/iconVentasFooter"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/icono_ventas"
+                        app:tint="@android:color/black" />
+                </FrameLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Ventas"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+
+            <!-- Estadísticas -->
+            <LinearLayout
+                android:id="@+id/navEstadisticas"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:clickable="true"
+                android:focusable="true">
+                <!-- Icono y texto para Estadísticas -->
+                <FrameLayout
+                    android:id="@+id/bgCircleEstad"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:background="@drawable/bg_circle_nav_unselected"
+                    android:gravity="center">
+                    <ImageView
+                        android:id="@+id/iconEstadisticasFooter"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/icono_estadisticas"
+                        app:tint="@android:color/black" />
+                </FrameLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Estadísticas"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="gris_oscuro">#4A4A4A</color>
+    <color name="gris_claro">#6D6D6D</color>
+    <color name="celeste_claro">#D6F4F4</color>
+    <color name="turquesa">#38A1A1</color>
+    <color name="crema">#FFFAF5</color>
+
+    <!-- Fondo principal de la app -->
+    <color name="fondo_principal">#D6F4F4</color> <!-- el color de fondo que aparece en el screenshot -->
+
+    <!-- Otros colores útiles (por si acaso) -->
+    <color name="blanco">#FFFFFF</color>
+    <color name="negro">#000000</color>
+</resources>
