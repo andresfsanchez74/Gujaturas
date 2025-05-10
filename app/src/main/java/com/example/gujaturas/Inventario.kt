@@ -2,63 +2,68 @@ package com.example.gujaturas
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Button
+import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class Inventario : AppCompatActivity() {
 
-    override fun onCreate(savedInstanceState: Bundle?) { //aaaaaaa
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_inventario)
 
-        // Obtener los botones del footer
-        val btnInventario = findViewById<LinearLayout>(R.id.navInventario)
-        val btnVentas = findViewById<LinearLayout>(R.id.navVentas)
-        val btnEstadisticas = findViewById<LinearLayout>(R.id.navEstadisticas)
+        // Footer
+        val btnInv: LinearLayout       = findViewById(R.id.navInventario)
+        val btnVen: LinearLayout       = findViewById(R.id.navVentas)
+        val btnEst: LinearLayout       = findViewById(R.id.navEstadisticas)
+        val bgInv: FrameLayout         = findViewById(R.id.bgCircleInventario)
+        val bgVen: FrameLayout         = findViewById(R.id.bgCircleVentas)
+        val bgEst: FrameLayout         = findViewById(R.id.bgCircleEstad)
 
-        // Obtener los círculos del fondo para cambiar el color
-        val bgCircleInventario = findViewById<FrameLayout>(R.id.bgCircleInventario)
-        val bgCircleVentas = findViewById<FrameLayout>(R.id.bgCircleVentas)
-        val bgCircleEstadisticas = findViewById<FrameLayout>(R.id.bgCircleEstad)
+        bgInv.setBackgroundResource(R.drawable.bg_circle_nav_selected)
 
-        // Cambiar el fondo del botón correspondiente (marcar Inventario como activo)
-        bgCircleInventario.setBackgroundResource(R.drawable.bg_circle_nav_selected)
-        bgCircleVentas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
-        bgCircleEstadisticas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
-
-        // Establecer la acción al hacer clic en Inventario
-        btnInventario.setOnClickListener {
-            // Cambiar fondo de los botones
-            bgCircleInventario.setBackgroundResource(R.drawable.bg_circle_nav_selected)
-            bgCircleVentas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
-            bgCircleEstadisticas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
-
-            // Ya estamos en la vista de Inventario, así que no necesitamos hacer nada más aquí.
+        btnInv.setOnClickListener {
+            bgInv.setBackgroundResource(R.drawable.bg_circle_nav_selected)
+            bgVen.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+            bgEst.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+        }
+        btnVen.setOnClickListener {
+            bgInv.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+            bgVen.setBackgroundResource(R.drawable.bg_circle_nav_selected)
+            bgEst.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+            startActivity(Intent(this, Ventas::class.java))
+        }
+        btnEst.setOnClickListener {
+            bgInv.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+            bgVen.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+            bgEst.setBackgroundResource(R.drawable.bg_circle_nav_selected)
+            startActivity(Intent(this, Estadisticas::class.java))
         }
 
-        // Establecer la acción al hacer clic en Ventas
-        btnVentas.setOnClickListener {
-            // Cambiar fondo de los botones
-            bgCircleInventario.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
-            bgCircleVentas.setBackgroundResource(R.drawable.bg_circle_nav_selected)
-            bgCircleEstadisticas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
-
-            // Navegar a la vista de ventas
-            val intent = Intent(this, Ventas::class.java)
-            startActivity(intent)
+        // Search
+        findViewById<ImageView>(R.id.iconFilter).setOnClickListener {
+            Toast.makeText(this, "Filtro no disponible", Toast.LENGTH_SHORT).show()
         }
 
-        // Establecer la acción al hacer clic en Estadísticas
-        btnEstadisticas.setOnClickListener {
-            // Cambiar fondo de los botones
-            bgCircleInventario.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
-            bgCircleVentas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
-            bgCircleEstadisticas.setBackgroundResource(R.drawable.bg_circle_nav_selected)
+        // Add product
+        findViewById<FrameLayout>(R.id.btnAgregarProductoContainer)
+            .setOnClickListener {
+                startActivity(Intent(this, AgregarProducto::class.java))
+            }
+        findViewById<Button>(R.id.btnAgregarPrimerProducto)
+            .setOnClickListener {
+                startActivity(Intent(this, AgregarProducto::class.java))
+            }
 
-            // Navegar a la vista de estadísticas
-            val intent = Intent(this, Estadisticas::class.java)
-            startActivity(intent)
-        }
+        // RecyclerView setup
+        val recycler: RecyclerView = findViewById(R.id.recyclerInventario)
+        recycler.layoutManager = LinearLayoutManager(this)
+        // TODO: inicializar adapter y listener de Firebase
     }
 }
