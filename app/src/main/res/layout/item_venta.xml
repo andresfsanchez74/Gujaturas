@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="4dp"
+    android:backgroundTint="@color/celeste_claro">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <!-- Nombre del Producto, Talla y Cantidad -->
+        <TextView
+            android:id="@+id/tvNombreTallaCantidadProducto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Ruana Tejida Rosada - Talla M x1"
+            android:textSize="18sp"
+            android:fontFamily="@font/roboto_bold"
+            android:textColor="@color/gris_oscuro" />
+
+        <!-- Precio de Venta y Botones Editar/Borrar en la misma fila -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end"
+            android:layout_marginTop="8dp">
+
+            <!-- Precio de Venta -->
+            <TextView
+                android:id="@+id/tvPrecioVenta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$60,000"
+                android:textSize="18sp"
+                android:fontFamily="@font/roboto_bold"
+                android:textColor="@color/gris_oscuro"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1" />
+
+            <!-- Botones de Editar y Borrar -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:gravity="end">
+
+                <ImageButton
+                    android:id="@+id/btnEditarVenta"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/icono_editar"
+                    android:contentDescription="Editar venta" />
+
+                <ImageButton
+                    android:id="@+id/btnBorrarVenta"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/icono_borrar"
+                    android:layout_marginStart="8dp"
+                    android:contentDescription="Borrar venta" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

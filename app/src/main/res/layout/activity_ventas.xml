@@ -45,6 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <!-- Botón de agregar venta -->
             <Button
                 android:id="@+id/btnAgregarVenta"
                 android:layout_width="wrap_content"
@@ -76,82 +77,35 @@
                     android:layout_marginStart="2dp"
                     android:layout_marginBottom="8dp"/>
 
-                <!-- Contenedor para las ventas -->
-                <LinearLayout
-                    android:id="@+id/ventasContainer"
+                <!-- RecyclerView para las ventas -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerVentas"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- Contenedor para mostrar el mensaje cuando no haya ventas -->
+                <LinearLayout
+                    android:id="@+id/emptyVentas"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
                     android:orientation="vertical"
-                    android:background="@drawable/bg_card_celeste"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:paddingBottom="16dp">
+                    android:visibility="gone">
 
-                    <!-- Item de venta único -->
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="match_parent"
+                    <ImageView
+                        android:layout_width="120dp"
+                        android:layout_height="120dp"
+                        android:contentDescription="No hay ventas"
+                        android:src="@drawable/icono_vacio" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        app:cardCornerRadius="8dp"
-                        android:backgroundTint="@color/celeste_claro"
-                        app:cardElevation="0dp">
-
-                        <!-- Contenedor de venta -->
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="10dp">
-
-                            <!-- Nombre del Producto -->
-                            <TextView
-                                android:id="@+id/tvNombreProducto"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Ruana Tejida Rosada - Talla M x1"
-                                android:textSize="18sp"
-                                android:fontFamily="@font/roboto_bold"
-                                android:textColor="@color/gris_oscuro"
-                                android:layout_marginBottom="4dp"/>
-
-                            <!-- Precio de la Venta -->
-                            <TextView
-                                android:id="@+id/tvPrecioVenta"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="$60,000"
-                                android:textSize="18sp"
-                                android:fontFamily="@font/roboto_bold"
-                                android:textColor="@color/gris_oscuro"
-                                android:layout_marginBottom="8dp"/>
-
-                            <!-- Botones para editar y borrar -->
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:gravity="end"
-                                android:weightSum="2">
-
-                                <ImageButton
-                                    android:id="@+id/btnEditarVenta"
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:src="@drawable/icono_editar"
-                                    android:contentDescription="Editar venta" />
-
-                                <ImageButton
-                                    android:id="@+id/btnBorrarVenta"
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:src="@drawable/icono_borrar"
-                                    android:layout_marginStart="8dp"
-                                    android:contentDescription="Borrar venta" />
-                            </LinearLayout>
-
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
-
+                        android:text="No hay ventas registradas"
+                        android:textColor="@color/gris_oscuro"
+                        android:textSize="18sp" />
                 </LinearLayout>
             </LinearLayout>
         </FrameLayout>
