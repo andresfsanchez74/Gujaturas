@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.gujaturas.Producto
@@ -73,9 +74,10 @@ class Inventario : AppCompatActivity() {
             }
 
         // RecyclerView
-        val recycler: RecyclerView      = findViewById(R.id.recyclerInventario)
-        val emptyView: LinearLayout     = findViewById(R.id.emptyInventario)
-        recycler.layoutManager = LinearLayoutManager(this)
+        val recycler: RecyclerView    = findViewById(R.id.recyclerInventario)
+        val emptyView: LinearLayout   = findViewById(R.id.emptyInventario)
+
+        recycler.layoutManager = GridLayoutManager(this, 2)
         adapter = ProductoAdapter(lista,
             onEdit = { prod ->
                 Intent(this, EditarProducto::class.java).apply {

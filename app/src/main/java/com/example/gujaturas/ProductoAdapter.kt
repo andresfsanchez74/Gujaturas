@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import androidx.recyclerview.widget.RecyclerView
+import java.text.DecimalFormat
 import com.example.gujaturas.R
 import com.example.gujaturas.Producto
 
@@ -24,11 +25,16 @@ class ProductoAdapter(
         private val txtPrecio: TextView   = itemView.findViewById(R.id.txtPrecioProducto)
         private val btnEdit: ImageButton  = itemView.findViewById(R.id.btnEditarProducto)
         private val btnDelete: ImageButton= itemView.findViewById(R.id.btnEliminarProducto)
+        private val priceFormat = DecimalFormat("#.##")
 
         fun bind(prod: Producto) {
-            txtNombre.text = prod.nombre
+            txtNombre.text = "${prod.nombre} ${prod.descripcion} - ${prod.cantidad} Disponible"
             txtTalla.text  = "Talla: ${prod.talla}"
-            txtPrecio.text = "$${prod.valor}"
+            // 3) Precio sin ".0" si es entero, y sin ceros extras si decimal
+            val strPrecio =
+                if (prod.valor % 1.0 == 0.0) prod.valor.toInt().toString()
+                else priceFormat.format(prod.valor)
+            txtPrecio.text = "$$strPrecio"
             prod.imagenUrl?.let { url ->
                 Glide.with(itemView.context)
                     .load(R.drawable.logo)
