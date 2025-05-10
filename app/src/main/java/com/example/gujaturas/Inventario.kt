@@ -51,7 +51,7 @@ class Inventario : AppCompatActivity() {
             Toast.makeText(this, "Filtro no disponible", Toast.LENGTH_SHORT).show()
         }
 
-        // Add product
+        // Add product aa
         findViewById<FrameLayout>(R.id.btnAgregarProductoContainer)
             .setOnClickListener {
                 startActivity(Intent(this, AgregarProducto::class.java))
