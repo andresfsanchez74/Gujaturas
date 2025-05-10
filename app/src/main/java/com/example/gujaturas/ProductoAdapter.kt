@@ -31,7 +31,7 @@ class ProductoAdapter(
             txtPrecio.text = "$${prod.valor}"
             prod.imagenUrl?.let { url ->
                 Glide.with(itemView.context)
-                    .load(url)
+                    .load(R.drawable.logo)
                     .into(img)
             }
             btnEdit.setOnClickListener { onEdit(prod) }

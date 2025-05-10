@@ -1,7 +1,7 @@
 package com.example.gujaturas
 
 data class Producto(
-    val id: String = "",
+    var id: String = "",
     val nombre: String = "",
     val descripcion: String = "",
     val cantidad: Int = 0,
