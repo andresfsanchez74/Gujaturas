@@ -3,10 +3,10 @@ package com.example.gujaturas
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,44 +24,42 @@ class Ventas : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ventas)
 
-        // Firebase RTDB Reference
-        dbRef = FirebaseDatabase.getInstance().getReference("ventas")
+        // 1) Referencia a RTDB
+        dbRef = FirebaseDatabase.getInstance()
+            .getReference("ventas")
 
-        // Footer navigation
-        val btnInventario: LinearLayout = findViewById(R.id.navInventario)
-        val btnVentas: LinearLayout = findViewById(R.id.navVentas)
-        val btnEstadisticas: LinearLayout = findViewById(R.id.navEstadisticas)
+        // 2) Footer navigation
+        val btnInv: LinearLayout       = findViewById(R.id.navInventario)
+        val btnVen: LinearLayout       = findViewById(R.id.navVentas)
+        val btnEst: LinearLayout       = findViewById(R.id.navEstadisticas)
+        val bgInv: FrameLayout         = findViewById(R.id.bgCircleInventario)
+        val bgVen: FrameLayout         = findViewById(R.id.bgCircleVentas)
+        val bgEst: FrameLayout         = findViewById(R.id.bgCircleEstad)
 
-        val bgCircleInventario: FrameLayout = findViewById(R.id.bgCircleInventario)
-        val bgCircleVentas: FrameLayout = findViewById(R.id.bgCircleVentas)
-        val bgCircleEstadisticas: FrameLayout = findViewById(R.id.bgCircleEstad)
+        // marcar sección actual
+        bgInv.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+        bgVen.setBackgroundResource(R.drawable.bg_circle_nav_selected)
+        bgEst.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
 
-        bgCircleInventario.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
-        bgCircleVentas.setBackgroundResource(R.drawable.bg_circle_nav_selected)
-        bgCircleEstadisticas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
-
-        // Set footer click listeners
-        btnInventario.setOnClickListener {
+        btnInv.setOnClickListener {
             startActivity(Intent(this, Inventario::class.java))
         }
-        btnVentas.setOnClickListener {
-            // Already in ventas activity
-        }
-        btnEstadisticas.setOnClickListener {
+        // btnVen: no hace nada, ya estamos aquí
+        btnEst.setOnClickListener {
             startActivity(Intent(this, Estadisticas::class.java))
         }
 
-        // RecyclerView for displaying sales
+        // 3) RecyclerView + Empty View
         val recyclerView: RecyclerView = findViewById(R.id.recyclerVentas)
-        val emptyView: LinearLayout = findViewById(R.id.emptyVentas)
+        val emptyView: LinearLayout    = findViewById(R.id.emptyVentas)
         recyclerView.layoutManager = LinearLayoutManager(this)
-
-        // Adapter setup
-        adapter = VentaAdapter(ventasList,
-            onEdit = { venta ->
-                val intent = Intent(this, EditarVenta::class.java)
-                intent.putExtra("VENTA_ID", venta.id)
-                startActivity(intent)
+        adapter = VentaAdapter(
+            ventasList,
+            onEdit   = { venta ->
+                Intent(this, EditarVenta::class.java).also {
+                    it.putExtra("VENTA_ID", venta.id)
+                    startActivity(it)
+                }
             },
             onDelete = { venta ->
                 dbRef.child(venta.id).removeValue()
@@ -70,91 +68,85 @@ class Ventas : AppCompatActivity() {
         )
         recyclerView.adapter = adapter
 
-        // Fetch ventas from Firebase
-        fetchVentas(emptyView)
-
-        // Botón de "Agregar Venta"
-        val btnAgregarVenta: Button = findViewById(R.id.btnAgregarVenta)
-        btnAgregarVenta.setOnClickListener {
-            // Iniciar la actividad "AgregarVenta"
-            val intent = Intent(this, AgregarVenta::class.java)
-            startActivity(intent)
+        // 4) Botón “Agregar Venta”
+        findViewById<Button>(R.id.btnAgregarVenta).setOnClickListener {
+            startActivity(Intent(this, AgregarVenta::class.java))
         }
+
+        // 5) Carga inicial de datos
+        fetchVentas(emptyView)
     }
 
     private fun fetchVentas(emptyView: LinearLayout) {
-        dbRef.orderByChild("fechaVenta").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val tempList = mutableListOf<Venta>()
-                snapshot.children.forEach { child ->
-                    child.getValue(Venta::class.java)?.let { venta ->
-                        venta.id = child.key ?: ""
-                        tempList.add(venta)
+        dbRef
+            .orderByChild("fechaVenta")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val temp = mutableListOf<Venta>()
+                    snapshot.children.forEach { child ->
+                        child.getValue(Venta::class.java)?.let { venta ->
+                            venta.id = child.key ?: ""
+                            temp.add(venta)
+                        }
                     }
+
+                    // agrupar por fecha
+                    val porFecha = groupByDate(temp)
+
+                    ventasList.clear()
+                    porFecha.forEach { (fecha, ventas) ->
+                        // cabezal de sección
+                        ventasList.add(Venta(productoNombre = fecha))
+                        ventasList.addAll(ventas)
+                    }
+                    adapter.notifyDataSetChanged()
+
+                    emptyView.visibility =
+                        if (ventasList.isEmpty()) View.VISIBLE else View.GONE
                 }
 
-                // Agrupar las ventas por fecha
-                val ventasPorFecha = groupByDate(tempList)
-
-                ventasList.clear()
-
-                // Ahora agregamos las ventas agrupadas al RecyclerView
-                ventasPorFecha.forEach { (fecha, ventas) ->
-                    ventasList.add(Venta(productoNombre = fecha)) // Aquí añadimos la fecha
-                    ventasList.addAll(ventas)
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(
+                        this@Ventas,
+                        "Error: ${error.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
-
-                adapter.notifyDataSetChanged()
-
-                // Show empty message if no ventas are found
-                emptyView.visibility = if (ventasList.isEmpty()) View.VISIBLE else View.GONE
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@Ventas, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+            })
     }
 
-    // Agrupar ventas por fecha (hoy, ayer, fecha específica)
+    /** Agrupa las ventas en un map clave=“Hoy”/“Ayer”/fecha, valor=listado **/
     private fun groupByDate(ventas: List<Venta>): Map<String, List<Venta>> {
-        val groupedVentas = mutableMapOf<String, MutableList<Venta>>()
+        val map = mutableMapOf<String, MutableList<Venta>>()
+        val hoy      = formatDate(Date())
+        val ayer     = formatDate(getYesterday())
 
-        val currentDate = getFormattedDate(Date())
-        val yesterdayDate = getFormattedDate(getYesterday())
-
-        ventas.forEach { venta ->
-            val ventaFecha = getFormattedDate(venta.fechaVenta ?: 0)
-            val fechaKey = when {
-                ventaFecha == currentDate -> "Hoy"
-                ventaFecha == yesterdayDate -> "Ayer"
-                else -> ventaFecha // Fecha específica
+        ventas.forEach { v ->
+            // casteo seguro de la marca de tiempo
+            val ts = (v.fechaVenta as? Long) ?: 0L
+            val key = when (formatDate(ts)) {
+                hoy  -> "Hoy"
+                ayer -> "Ayer"
+                else -> formatDate(ts)
             }
-
-            if (groupedVentas.containsKey(fechaKey)) {
-                groupedVentas[fechaKey]?.add(venta)
-            } else {
-                groupedVentas[fechaKey] = mutableListOf(venta)
-            }
+            map.getOrPut(key) { mutableListOf() }.add(v)
         }
-
-        return groupedVentas
+        return map
     }
 
-    private fun getFormattedDate(timestamp: Long): String {
+    // formatea un timestamp (Long) a “dd MMM yyyy”
+    private fun formatDate(timestamp: Long): String {
         val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         return sdf.format(Date(timestamp))
     }
-
-    private fun getFormattedDate(date: Date): String {
+    // formatea un objeto Date a “dd MMM yyyy”
+    private fun formatDate(date: Date): String {
         val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         return sdf.format(date)
     }
-
     private fun getYesterday(): Date {
-        val cal = Calendar.getInstance()
-        cal.add(Calendar.DATE, -1)
-        return cal.time
+        return Calendar.getInstance().apply {
+            add(Calendar.DATE, -1)
+        }.time
     }
 }
-
