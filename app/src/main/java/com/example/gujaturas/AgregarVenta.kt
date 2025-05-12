@@ -21,13 +21,15 @@ class AgregarVenta : AppCompatActivity() {
     private lateinit var tvTotalCompra: TextView
     private lateinit var btnGuardar: Button
 
-    // Vistas que ocultamos al inicio
+    private lateinit var btnSumar: ImageButton
+    private lateinit var btnRestar: ImageButton
+    private lateinit var btnCerrarDescuento: ImageButton
+
     private lateinit var itemRow: LinearLayout
     private lateinit var separadorPrecio: View
     private lateinit var llAddDescuento: LinearLayout
     private lateinit var rowDescuento: LinearLayout
 
-    // Flags para evitar recursión en los TextWatchers
     private var editingPrecioNuevo = false
     private var editingDescuento   = false
 
@@ -42,20 +44,18 @@ class AgregarVenta : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_agregar_venta)
 
-        // Footer navigation
+        // Footer nav…
         val btnInv: LinearLayout = findViewById(R.id.navInventario)
         val btnVen: LinearLayout = findViewById(R.id.navVentas)
         val btnEst: LinearLayout = findViewById(R.id.navEstadisticas)
         val bgInv: FrameLayout   = findViewById(R.id.bgCircleInventario)
         val bgVen: FrameLayout   = findViewById(R.id.bgCircleVentas)
         val bgEst: FrameLayout   = findViewById(R.id.bgCircleEstad)
-
         bgInv.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
         bgVen.setBackgroundResource(R.drawable.bg_circle_nav_selected)
         bgEst.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
-
         btnInv.setOnClickListener { startActivity(Intent(this, Inventario::class.java)) }
-        btnVen.setOnClickListener { /* estamos aquí */ }
+        btnVen.setOnClickListener { /* aquí */ }
         btnEst.setOnClickListener { startActivity(Intent(this, Estadisticas::class.java)) }
 
         // Bind vistas principales
@@ -67,95 +67,94 @@ class AgregarVenta : AppCompatActivity() {
         tvTotalCompra     = findViewById(R.id.labelTotalCompra)
         btnGuardar        = findViewById(R.id.btnGuardarVenta)
 
-        // Bind y oculta bloques de ítem y descuento
+        // Bind controles de cantidad y cerrar descuento
+        btnSumar            = findViewById(R.id.btnSumar)
+        btnRestar           = findViewById(R.id.btnRestar)
+        btnCerrarDescuento  = findViewById(R.id.btnCerrarDescuento)
+
+        // Bind y oculta bloques
         itemRow          = findViewById(R.id.itemRow)
         separadorPrecio  = findViewById(R.id.separadorPrecio)
         llAddDescuento   = findViewById(R.id.llAddDescuento)
         rowDescuento     = findViewById(R.id.rowDescuento)
-
         itemRow.visibility         = View.GONE
         tvPrecioItem.visibility    = View.GONE
         separadorPrecio.visibility = View.GONE
         llAddDescuento.visibility  = View.GONE
         rowDescuento.visibility    = View.GONE
 
-        // Referencias Firebase
+        // Firebase
         dbProductos = FirebaseDatabase.getInstance().getReference("productos")
         dbVentas    = FirebaseDatabase.getInstance().getReference("ventas")
 
-        // Cargar Spinner desde RTDB
+        // Cargar spinner…
         dbProductos.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
+            override fun onDataChange(snap: DataSnapshot) {
                 listaProductos.clear()
-                snapshot.children.mapNotNull {
+                snap.children.mapNotNull {
                     it.getValue(Producto::class.java)?.apply { id = it.key ?: "" }
                 }.also { listaProductos.addAll(it) }
-
-                val nombres = mutableListOf("Seleccionar producto") + listaProductos
-                    .sortedBy { it.nombre }
-                    .map { "${it.nombre} - ${it.color} - ${it.talla}" }
-
+                val nombres = mutableListOf("Seleccionar producto") +
+                        listaProductos.sortedBy { it.nombre }.map {
+                            "${it.nombre} - ${it.color} - ${it.talla}"
+                        }
                 spinnerProducto.adapter = ArrayAdapter(
                     this@AgregarVenta,
                     android.R.layout.simple_spinner_item,
                     nombres
                 ).also { it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item) }
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@AgregarVenta, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+            override fun onCancelled(err: DatabaseError) {
+                Toast.makeText(this@AgregarVenta, "Error: ${err.message}", Toast.LENGTH_SHORT).show()
             }
         })
 
-        // Listener del Spinner
+        // Selección spinner
         spinnerProducto.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, pos: Int, id: Long) {
                 if (pos == 0) {
-                    // Placeholder: limpiar y ocultar todo
-                    itemRow.visibility         = View.GONE
-                    tvPrecioItem.visibility    = View.GONE
+                    // limpiar y ocultar todo
+                    itemRow.visibility = View.GONE
+                    tvPrecioItem.visibility = View.GONE
                     separadorPrecio.visibility = View.GONE
-                    llAddDescuento.visibility  = View.GONE
-                    rowDescuento.visibility    = View.GONE
-
-                    tvItemDescripcion.text = ""
-                    tvPrecioItem.text      = ""
-                    etPrecioNuevo.setText("")
-                    etDescuento.setText("")
+                    llAddDescuento.visibility = View.GONE
+                    rowDescuento.visibility = View.GONE
                     return
                 }
-
-                // Producto real: mostrar bloques
-                itemRow.visibility         = View.VISIBLE
-                tvPrecioItem.visibility    = View.VISIBLE
+                itemRow.visibility = View.VISIBLE
+                tvPrecioItem.visibility = View.VISIBLE
                 separadorPrecio.visibility = View.VISIBLE
-                llAddDescuento.visibility  = View.VISIBLE
-                rowDescuento.visibility    = View.VISIBLE
+                llAddDescuento.visibility = View.VISIBLE
+                rowDescuento.visibility = View.VISIBLE
 
-                // Offset -1 por el placeholder
-                val prod = listaProductos.sortedBy { it.nombre }.getOrNull(pos - 1)
-                    ?: return
-
+                val prod = listaProductos.sortedBy { it.nombre }.getOrNull(pos - 1) ?: return
                 val sel = ProductoSeleccionado(prod)
                 productosSeleccionados.add(sel)
-
-                tvItemDescripcion.text = "${prod.nombre} - ${prod.talla} x${sel.cantidad}"
-                tvPrecioItem.text      = formatCurrency(sel.precioUnitario)
-                etPrecioNuevo.setText(sel.precioUnitario.toString())
-                etDescuento.setText("0")
-                actualizarTotal()
+                updateItemViews(sel)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        // TextWatcher: Precio Nuevo → % Descuento
+        // + / –
+        btnSumar.setOnClickListener {
+            val sel = productosSeleccionados.lastOrNull() ?: return@setOnClickListener
+            sel.cantidad++
+            updateItemViews(sel)
+        }
+        btnRestar.setOnClickListener {
+            val sel = productosSeleccionados.lastOrNull() ?: return@setOnClickListener
+            if (sel.cantidad > 1) {
+                sel.cantidad--
+                updateItemViews(sel)
+            }
+        }
+
+        // TextWatchers…
         etPrecioNuevo.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 if (editingDescuento) return
                 val sel = productosSeleccionados.lastOrNull() ?: return
                 val np = s.toString().toDoubleOrNull() ?: return
-
                 editingPrecioNuevo = true
                 sel.aplicarPrecioNuevo(np)
                 val porc = (1 - sel.precioConDescuento / sel.precioUnitario) * 100
@@ -163,30 +162,56 @@ class AgregarVenta : AppCompatActivity() {
                 editarTotalYVisibilidades()
                 editingPrecioNuevo = false
             }
-
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
-
-        // TextWatcher: % Descuento → Precio Nuevo
         etDescuento.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 if (editingPrecioNuevo) return
                 val sel = productosSeleccionados.lastOrNull() ?: return
                 val pct = s.toString().toDoubleOrNull() ?: return
-
                 editingDescuento = true
                 sel.aplicarDescuentoPorcentaje(pct)
                 etPrecioNuevo.setText(String.format(Locale.getDefault(), "%.2f", sel.precioConDescuento))
                 editarTotalYVisibilidades()
                 editingDescuento = false
             }
-
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // Guardar venta(s)
+        // **2) Cerrar descuento**
+        btnCerrarDescuento.setOnClickListener {
+            Toast.makeText(this, "Cerrando sección de descuento", Toast.LENGTH_SHORT).show()
+
+            // 1) Deshabilita ambos watchers
+            editingPrecioNuevo = true
+            editingDescuento   = true
+
+            // 2) Oculta la sección
+            llAddDescuento.visibility = View.GONE
+            rowDescuento.visibility   = View.GONE
+
+            // 3) Restaura el último producto a precio original
+            productosSeleccionados.lastOrNull()?.let { sel ->
+                sel.descuentoAplicado  = false
+                sel.precioConDescuento = sel.precioUnitario
+
+                // 4) Resetea los campos SIN disparar watchers
+                etDescuento.setText("0")
+                etPrecioNuevo.setText(sel.precioUnitario.toString())
+
+                // 5) Actualiza línea y total
+                updateItemViews(sel)
+            }
+
+            // 6) Vuelve a habilitar los watchers
+            editingPrecioNuevo = false
+            editingDescuento   = false
+        }
+
+
+        // Guardar
         btnGuardar.setOnClickListener {
             productosSeleccionados.forEach { sel ->
                 val vid = dbVentas.push().key ?: return@forEach
@@ -207,13 +232,17 @@ class AgregarVenta : AppCompatActivity() {
         }
     }
 
+    private fun updateItemViews(sel: ProductoSeleccionado) {
+        tvItemDescripcion.text = "${sel.producto.nombre} - ${sel.producto.talla} x${sel.cantidad}"
+        tvPrecioItem.text = formatCurrency(sel.totalLinea())
+        actualizarTotal()
+    }
+
     private fun editarTotalYVisibilidades() {
-        // Asegura que los bloques estén visibles
-        itemRow.visibility         = View.VISIBLE
+        itemRow.visibility = View.VISIBLE
         separadorPrecio.visibility = View.VISIBLE
-        llAddDescuento.visibility  = View.VISIBLE
-        rowDescuento.visibility    = View.VISIBLE
-        // Actualiza el total
+        llAddDescuento.visibility = View.VISIBLE
+        rowDescuento.visibility = View.VISIBLE
         actualizarTotal()
     }
 
