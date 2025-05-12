@@ -2,16 +2,18 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/celeste_claro">
 
-    <!-- Header con fondo curvo -->
+    <!-- Header con fondo curvo y elevación -->
     <FrameLayout
         android:id="@+id/header"
         android:layout_width="0dp"
         android:layout_height="120dp"
         android:background="@drawable/bg_header_curvo"
+        android:elevation="4dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -27,266 +29,104 @@
             android:layout_gravity="center" />
     </FrameLayout>
 
-    <!-- Sección blanca con borde redondeado -->
+    <!-- ScrollView con contenido dinámico -->
+    <ScrollView
+        android:id="@+id/scrollContent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomBar">
+
+
+
+        <!-- Sección blanca con borde redondeado -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_section_white_rounded"
+            android:padding="16dp">
+
+            <!-- Producto -->
+            <TextView
+                android:id="@+id/labelProducto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Producto"
+                android:textSize="20sp"
+                android:fontFamily="@font/roboto_bold"
+                android:textColor="@color/gris_oscuro" />
+
+            <Spinner
+                android:id="@+id/spinnerProducto"
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:background="@drawable/spinner_small_round"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="25dp"
+                android:gravity="center" />
+
+            <!-- Contenedor para inflar dinámicamente los items de venta -->
+            <LinearLayout
+                android:id="@+id/containerItems"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginTop="20dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Barra inferior con Total y Guardar -->
     <LinearLayout
-        android:id="@+id/sectionWhite"
+        android:id="@+id/bottomBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/bg_section_white_rounded"
-        android:layout_marginTop="-17dp"
+        android:orientation="horizontal"
         android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/header"
+        android:gravity="center_vertical"
+        android:elevation="2dp"
+        app:layout_constraintBottom_toTopOf="@id/footer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Producto -->
         <TextView
-            android:id="@+id/labelProducto"
-            android:layout_width="match_parent"
+            android:id="@+id/labelTotalCompra"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Producto"
-            android:textSize="20sp"
+            android:layout_weight="1"
+            android:text="Total de la Compra: "
+            android:textSize="16sp"
             android:fontFamily="@font/roboto_bold"
             android:textColor="@color/gris_oscuro" />
 
-        <Spinner
-            android:id="@+id/spinnerProducto"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:background="@drawable/spinner_small_round"
-            android:layout_marginTop="10dp"
-            android:gravity="center" />
-
-        <!-- Ítem con controles de cantidad y cerrar -->
-        <LinearLayout
-            android:id="@+id/itemRow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginTop="25dp"
-            android:paddingVertical="8dp"
-            android:visibility="gone">
-
-            <!-- Descripción del producto -->
-            <TextView
-                android:id="@+id/tvItemDescripcion"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Saco Tejido Azul – Talla M"
-                android:textSize="17sp"
-                android:fontFamily="@font/roboto_bold"
-                android:textColor="@color/gris_oscuro" />
-
-            <!-- Botones de cantidad -->
-            <LinearLayout
-                android:id="@+id/quantityControls"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <ImageButton
-                    android:id="@+id/btnRestar"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/icono_restar"/>
-                <ImageView
-                    android:id="@+id/separador"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:src="@drawable/separador_vertical"
-                    android:layout_gravity="center"/>
-                <ImageButton
-                    android:id="@+id/btnSumar"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="?attr/selectableItemBackground"
-                    android:src="@drawable/icono_agregar"/>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Precio del ítem -->
-        <TextView
-            android:id="@+id/tvPrecioItem"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="$60,000"
-            android:textSize="14sp"
-            android:fontFamily="@font/roboto_bold"
-            android:textColor="@color/gris_claro"
-            android:layout_marginBottom="17dp"
-            android:visibility="gone"/>
-
-        <!-- Separador -->
-        <View
-            android:id="@+id/separadorPrecio"
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:visibility="gone"
-            android:background="@android:color/darker_gray" />
-
-        <!-- Añadir Descuento -->
-        <LinearLayout
-            android:id="@+id/llAddDescuento"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:visibility="gone">
-
-            <!-- Botón de cerrar -->
-            <TextView
-                android:id="@+id/tvAddDescuento"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:fontFamily="@font/roboto_bold"
-                android:gravity="center"
-                android:layout_marginStart="32dp"
-                android:text="¿Añadir Descuento?"
-                android:textColor="@color/gris_oscuro"
-                android:textSize="17sp" />
-
-            <ImageButton
-                android:id="@+id/btnCerrarDescuento"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/icono_cerrar"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:clickable="true"
-                android:focusable="true"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/rowDescuento"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp"
-            android:gravity="center_vertical"
-            android:visibility="gone">
-
-            <!-- Precio Nuevo -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center_horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Precio Nuevo"
-                    android:textSize="15sp"
-                    android:fontFamily="@font/roboto_bold"
-                    android:textColor="@color/gris_oscuro"
-                    android:gravity="center" />
-
-                <EditText
-                    android:id="@+id/etPrecioNuevo"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="5dp"
-                    android:inputType="numberDecimal"
-                    android:background="@drawable/et_border_squared"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:fontFamily="@font/roboto_regular"
-                    android:textColor="@color/gris_oscuro" />
-            </LinearLayout>
-
-            <!-- Texto "O" separador -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_marginTop="17dp"
-                android:layout_weight="0.5"
-                android:fontFamily="@font/roboto_bold"
-                android:gravity="center"
-                android:text="O"
-                android:textColor="@color/gris_oscuro"
-                android:textSize="14sp" />
-
-            <!-- Descuento % -->
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center_horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Descuento"
-                    android:textSize="15sp"
-                    android:fontFamily="@font/roboto_bold"
-                    android:textColor="@color/gris_oscuro"
-                    android:gravity="center" />
-
-                <EditText
-                    android:id="@+id/etDescuento"
-                    android:layout_width="match_parent"
-                    android:layout_height="30dp"
-                    android:layout_marginTop="5dp"
-                    android:inputType="numberDecimal"
-                    android:background="@drawable/et_border_squared"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:fontFamily="@font/roboto_regular"
-                    android:textColor="@color/gris_oscuro" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Separador final -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginTop="30dp"
-            android:visibility="gone"/>
-
-        <!-- Total de la Compra y Guardar -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="20dp"
-            android:gravity="center_vertical">
-
-            <TextView
-                android:id="@+id/labelTotalCompra"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Total de la Compra: "
-                android:textSize="16sp"
-                android:fontFamily="@font/roboto_bold"
-                android:textColor="@color/gris_oscuro" />
-
-            <Button
-                android:id="@+id/btnGuardarVenta"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginStart="10dp"
-                android:layout_marginBottom="16dp"
-                android:paddingStart="32dp"
-                android:paddingEnd="32dp"
-                android:text="Guardar"
-                android:textSize="16sp"
-                android:fontFamily="@font/roboto_medium"
-                android:textColor="@android:color/white"
-                android:background="@drawable/btn_rounded_turquesa" />
-        </LinearLayout>
+        <Button
+            android:id="@+id/btnGuardarVenta"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:paddingStart="32dp"
+            android:paddingEnd="32dp"
+            android:text="Guardar"
+            android:textSize="16sp"
+            android:fontFamily="@font/roboto_medium"
+            android:textColor="@android:color/white"
+            android:background="@drawable/btn_rounded_turquesa" />
     </LinearLayout>
 
     <!-- Footer -->
     <include
         android:id="@+id/footer"
         layout="@layout/activity_footer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
