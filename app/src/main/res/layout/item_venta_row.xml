@@ -4,11 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/bg_section_white_rounded"
     android:padding="12dp"
     android:layout_marginBottom="12dp">
 
-    <!-- Fila horizontal: descripción + botones -->
+    <!-- Fila horizontal: descripción + botón descuento -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,7 +20,35 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Producto – Talla x1"
-            android:fontFamily="@font/roboto_bold"/>
+            android:textSize="17sp"
+            android:fontFamily="@font/roboto_bold"
+            android:textColor="@color/gris_oscuro"/>
+
+        <ImageButton
+            android:id="@+id/btnDescuento"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@drawable/icono_descuento"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
+    </LinearLayout>
+
+    <!-- Fila horizontal: precio + botones -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="4dp">
+
+        <TextView
+            android:id="@+id/tvPrecioLinea"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="$0"
+            android:textSize="14sp"
+            android:fontFamily="@font/roboto_bold"
+            android:textColor="@color/gris_claro"/>
 
         <ImageButton
             android:id="@+id/btnRestar"
@@ -29,7 +56,11 @@
             android:layout_height="24dp"
             android:src="@drawable/icono_restar"
             android:background="?attr/selectableItemBackgroundBorderless"/>
-
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="24dp"
+            android:src="@drawable/separador_vertical"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
         <ImageButton
             android:id="@+id/btnSumar"
             android:layout_width="24dp"
@@ -38,36 +69,40 @@
             android:background="?attr/selectableItemBackgroundBorderless"/>
     </LinearLayout>
 
-    <!-- Precio de línea -->
-    <TextView
-        android:id="@+id/tvPrecioLinea"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="$0"
-        android:fontFamily="@font/roboto_bold"
-        android:layout_marginTop="4dp"/>
-
-    <!-- Sección de Descuento -->
+    <!-- Contenedor completo de toda la sección de descuento -->
     <LinearLayout
+        android:id="@+id/containerDescuento"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:visibility="gone"
-        android:layout_marginTop="8dp">
+        android:layout_marginTop="17dp">
 
+        <!-- Separador -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/darker_gray"/>
+
+        <!-- Toggle Añadir Descuento + botón cerrar -->
         <LinearLayout
+            android:id="@+id/llToggleDescuento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:layout_marginTop="15dp">
 
-            <EditText
-                android:id="@+id/etDescuentoRow"
+            <TextView
+                android:id="@+id/tvAddDescuento"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:hint="% Descuento"
-                android:inputType="numberDecimal"/>
+                android:text="¿Añadir Descuento?"
+                android:textSize="17sp"
+                android:fontFamily="@font/roboto_bold"
+                android:textColor="@color/gris_oscuro"
+                android:gravity="center"/>
 
             <ImageButton
                 android:id="@+id/btnCerrarDescuento"
@@ -77,12 +112,95 @@
                 android:background="?attr/selectableItemBackgroundBorderless"/>
         </LinearLayout>
 
-        <EditText
-            android:id="@+id/etPrecioNuevoRow"
+        <!-- Campos de la sección de descuento -->
+        <LinearLayout
+            android:id="@+id/rowDescuento"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Precio Nuevo"
-            android:inputType="numberDecimal"
-            android:layout_marginTop="4dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="12dp">
+
+            <!-- Precio Nuevo -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Precio Nuevo"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/roboto_bold"
+                    android:textColor="@color/gris_oscuro"
+                    android:gravity="center"/>
+
+                <EditText
+                    android:id="@+id/etPrecioNuevo"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:inputType="numberDecimal"
+                    android:background="@drawable/et_border_squared"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:fontFamily="@font/roboto_regular"
+                    android:textColor="@color/gris_oscuro"
+                    android:layout_marginTop="5dp"/>
+            </LinearLayout>
+
+            <!-- Separador "O" -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_weight="0.5"
+                android:text="O"
+                android:textSize="14sp"
+                android:fontFamily="@font/roboto_bold"
+                android:textColor="@color/gris_oscuro"
+                android:gravity="center"
+                android:layout_marginTop="17dp"/>
+
+            <!-- Descuento % -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Descuento"
+                    android:textSize="15sp"
+                    android:fontFamily="@font/roboto_bold"
+                    android:textColor="@color/gris_oscuro"
+                    android:gravity="center"/>
+
+                <EditText
+                    android:id="@+id/etDescuento"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:inputType="numberDecimal"
+                    android:background="@drawable/et_border_squared"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:fontFamily="@font/roboto_regular"
+                    android:textColor="@color/gris_oscuro"
+                    android:layout_marginTop="5dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Separador final -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="30dp"/>
     </LinearLayout>
+
 </LinearLayout>
