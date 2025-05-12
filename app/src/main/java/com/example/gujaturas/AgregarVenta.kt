@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -124,57 +125,114 @@ class AgregarVenta : AppCompatActivity() {
             calculateTotal()
         }
 
+        // Flags para evitar recursión entre watchers
+        var editingPrecio    = false
+        var editingDescuento = false
+
+        // Inicialización de campos
+        etPrecioNuevo.setText(sel.precioUnitario.toString())
+        etDescuento.setText("0")
+        containerDescuento.visibility = View.GONE
+
         // + / –
         btnPlus.setOnClickListener {
-            sel.cantidad++; refresh()
+            sel.cantidad++
+            refresh()
         }
         btnMinus.setOnClickListener {
-            if (sel.cantidad > 1) { sel.cantidad--; refresh() }
+            if (sel.cantidad > 1) {
+                sel.cantidad--
+                refresh()
+            }
         }
 
         // Toggle sección de descuento
-        containerDescuento.visibility = View.GONE
         btnDescuento.setOnClickListener {
             containerDescuento.visibility =
                 if (containerDescuento.visibility == View.GONE) View.VISIBLE else View.GONE
         }
 
-        // Cerrar descuento: restaurar y ocultar
-        btnCerrar.setOnClickListener {
-            sel.descuentoAplicado  = false
-            sel.precioConDescuento = sel.precioUnitario
-            etPrecioNuevo.setText(sel.precioUnitario.toString())
-            etDescuento.setText("0")
-            containerDescuento.visibility = View.GONE
-            refresh()
+        // TextWatcher para Precio Nuevo → % Descuento
+        val precioWatcher = object: TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                if (editingPrecio) return
+                val np = s.toString().toDoubleOrNull() ?: return
+
+                if (np > sel.precioUnitario) {
+                    editingPrecio = true
+                    etPrecioNuevo.setText(sel.precioUnitario.toString())
+                    editingPrecio = false
+                    return
+                }
+
+                sel.aplicarPrecioNuevo(np)
+                sel.descuentoAplicado = true
+                val porc = (1 - sel.precioConDescuento / sel.precioUnitario) * 100
+
+                editingDescuento = true
+                etDescuento.setText(String.format(Locale.getDefault(), "%.1f", porc))
+                editingDescuento = false
+
+                refresh()
+            }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         }
 
-        // Precio Nuevo → % Descuento
-        etPrecioNuevo.addTextChangedListener(object: TextWatcher {
+        // TextWatcher para % Descuento → Precio Nuevo
+        val descuentoWatcher = object: TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                val np = s.toString().toDoubleOrNull() ?: return
-                sel.aplicarPrecioNuevo(np)
-                val porc = (1 - sel.precioConDescuento/sel.precioUnitario)*100
-                etDescuento.setText(String.format(Locale.getDefault(), "%.1f", porc))
-                refresh()
-            }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-
-        // % Descuento → Precio Nuevo
-        etDescuento.addTextChangedListener(object: TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
+                if (editingDescuento) return
                 val pct = s.toString().toDoubleOrNull() ?: return
+
+                if (pct < 0 || pct > 100) {
+                    editingDescuento = true
+                    etDescuento.setText("0")
+                    editingDescuento = false
+                    return
+                }
+
                 sel.aplicarDescuentoPorcentaje(pct)
+                sel.descuentoAplicado = true
+
+                editingPrecio = true
                 etPrecioNuevo.setText(String.format(Locale.getDefault(), "%.2f", sel.precioConDescuento))
+                editingPrecio = false
+
                 refresh()
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
+        }
 
-        // init
+        // Asociar watchers
+        etPrecioNuevo.addTextChangedListener(precioWatcher)
+        etDescuento.addTextChangedListener(descuentoWatcher)
+
+        // Botón para cerrar descuento
+        btnCerrar.setOnClickListener {
+            try {
+                // Bloquear ambos watchers mientras reseteamos
+                editingPrecio = true
+                editingDescuento = true
+
+                sel.descuentoAplicado  = false
+                sel.precioConDescuento = sel.precioUnitario
+
+                etPrecioNuevo.setText(sel.precioUnitario.toString())
+                etDescuento.setText("0")
+                containerDescuento.visibility = View.GONE
+                refresh()
+            } catch (e: Exception) {
+                Log.e("AgregarVenta", "Error al cerrar descuento", e)
+                Toast.makeText(this, "Error al procesar el descuento", Toast.LENGTH_SHORT).show()
+            } finally {
+                editingPrecio = false
+                editingDescuento = false
+            }
+        }
+
+        // Inicializa la UI con valores correctos
         refresh()
     }
 

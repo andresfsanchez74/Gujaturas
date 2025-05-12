@@ -195,12 +195,6 @@
 
         </LinearLayout>
 
-        <!-- Separador final -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginTop="30dp"/>
     </LinearLayout>
 
 </LinearLayout>
