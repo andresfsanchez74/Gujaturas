@@ -10,7 +10,7 @@
         android:id="@+id/tvFecha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hoy"
+        android:text="Fecha"
         android:textSize="21sp"
         android:fontFamily="@font/roboto_bold"
         android:textColor="@color/gris_oscuro"

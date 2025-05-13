@@ -27,7 +27,7 @@ class Ventas : AppCompatActivity() {
         // 1) Referencia a RTDB
         dbRef = FirebaseDatabase.getInstance().getReference("ventas")
 
-        // 2) Footer navigation
+        // Footer navigation
         val btnInv: LinearLayout = findViewById(R.id.navInventario)
         val btnVen: LinearLayout = findViewById(R.id.navVentas)
         val btnEst: LinearLayout = findViewById(R.id.navEstadisticas)
@@ -35,7 +35,6 @@ class Ventas : AppCompatActivity() {
         val bgVen: FrameLayout = findViewById(R.id.bgCircleVentas)
         val bgEst: FrameLayout = findViewById(R.id.bgCircleEstad)
 
-        // Marcar sección actual
         bgInv.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
         bgVen.setBackgroundResource(R.drawable.bg_circle_nav_selected)
         bgEst.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
@@ -48,14 +47,13 @@ class Ventas : AppCompatActivity() {
             startActivity(Intent(this, Estadisticas::class.java))
         }
 
-        // 3) RecyclerView + Empty View
+        // RecyclerView + Empty View
         val recyclerView: RecyclerView = findViewById(R.id.recyclerVentas)
         val emptyView: LinearLayout = findViewById(R.id.emptyVentas)
         recyclerView.layoutManager = LinearLayoutManager(this)
         adapter = VentaAdapter(
             ventasList,
             onEdit = { venta ->
-                // Solo permitir editar ventas reales (no los encabezados)
                 if (venta.productos.isNotEmpty()) {
                     Intent(this, EditarVenta::class.java).also {
                         it.putExtra("VENTA_ID", venta.id)
@@ -64,7 +62,6 @@ class Ventas : AppCompatActivity() {
                 }
             },
             onDelete = { venta ->
-                // Solo permitir eliminar ventas reales (no los encabezados)
                 if (venta.productos.isNotEmpty()) {
                     dbRef.child(venta.id).removeValue()
                     Toast.makeText(this, "Venta eliminada", Toast.LENGTH_SHORT).show()
@@ -73,12 +70,12 @@ class Ventas : AppCompatActivity() {
         )
         recyclerView.adapter = adapter
 
-        // 4) Botón "Agregar Venta"
+        // Botón "Agregar Venta"
         findViewById<Button>(R.id.btnAgregarVenta).setOnClickListener {
             startActivity(Intent(this, AgregarVenta::class.java))
         }
 
-        // 5) Carga inicial de datos
+        // Carga inicial de datos
         fetchVentas(emptyView)
     }
 
@@ -118,7 +115,6 @@ class Ventas : AppCompatActivity() {
             })
     }
 
-    /** Actualiza la lista de ventas agrupadas por fecha */
     private fun updateVentasList(ventasFromDB: List<Venta>) {
         ventasList.clear()
 
@@ -145,38 +141,24 @@ class Ventas : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 
-    /** Agrupa las ventas en un map clave="Hoy"/"Ayer"/fecha, valor=listado **/
     private fun groupByDate(ventas: List<Venta>): Map<String, List<Venta>> {
         val result = mutableMapOf<String, MutableList<Venta>>()
-        val hoy = formatDate(Date())
-        val ayer = formatDate(getYesterday())
 
         ventas.forEach { venta ->
             // Casteo seguro de la marca de tiempo
             val timestamp = (venta.fechaVenta as? Long) ?: 0L
-            val key = when (formatDate(timestamp)) {
-                hoy -> "Hoy"
-                ayer -> "Ayer"
-                else -> formatDate(timestamp)
-            }
-            // Solo agregar ventas que tienen productos
+            val formattedDate = formatDate(timestamp)  // Utiliza el formato de fecha real
+
             if (venta.productos.isNotEmpty()) {
-                result.getOrPut(key) { mutableListOf() }.add(venta)
+                result.getOrPut(formattedDate) { mutableListOf() }.add(venta)
             }
         }
         return result
     }
 
-    // Formatea un timestamp (Long) a "dd MMM yyyy"
     private fun formatDate(timestamp: Long): String {
         val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         return sdf.format(Date(timestamp))
-    }
-
-    // Formatea un objeto Date a "dd MMM yyyy"
-    private fun formatDate(date: Date): String {
-        val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-        return sdf.format(date)
     }
 
     private fun getYesterday(): Date {
