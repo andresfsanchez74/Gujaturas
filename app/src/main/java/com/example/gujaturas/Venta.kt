@@ -3,11 +3,8 @@ package com.example.gujaturas
 import com.google.firebase.database.ServerValue
 
 data class Venta(
-    var id: String = "",                // clave Firebase
-    var idProducto: String = "",        // PASAMOS A String
-    var cantidadVendida: Int = 0,
-    var descuentoAplicado: Boolean = false,
-    var precioVenta: Double = 0.0,
-    var fechaVenta: Any = ServerValue.TIMESTAMP,  // Any para TIMESTAMP
-    var productoNombre: String = ""
+    var id: String = "",
+    var totalCompra: Double = 0.0,
+    var fechaVenta: Any = ServerValue.TIMESTAMP,
+    var productos: Map<String, DetalleVenta> = mutableMapOf()  // Cambié la lista por un mapa con la clave como producto
 )

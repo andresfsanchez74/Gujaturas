@@ -83,23 +83,40 @@ class AgregarVenta : AppCompatActivity() {
 
         // Guardar todas las ventas
         btnGuardar.setOnClickListener {
+            // Crear una lista de detalles de venta para cada producto seleccionado
+            val detallesVenta = mutableMapOf<String, DetalleVenta>()
             productosSeleccionados.forEach { sel ->
-                val vid = dbVentas.push().key ?: return@forEach
-                val venta = Venta(
-                    id                = vid,
-                    idProducto        = sel.producto.id,
-                    cantidadVendida   = sel.cantidad,
+                detallesVenta[sel.producto.id] = DetalleVenta(
+                    idProducto = sel.producto.id,
+                    cantidad = sel.cantidad,
+                    precioUnitario = sel.precioUnitario,
                     descuentoAplicado = sel.descuentoAplicado,
-                    precioVenta       = sel.totalLinea(),
-                    fechaVenta        = ServerValue.TIMESTAMP,
-                    productoNombre    = sel.producto.nombre
+                    precioConDescuento = sel.precioConDescuento,
+                    nombre = sel.producto.nombre
                 )
-                dbVentas.child(vid).setValue(venta)
+            }
+
+            // Crear la venta con los detalles de los productos
+            val vid = dbVentas.push().key ?: return@setOnClickListener
+            val venta = Venta(
+                id = vid,
+                productos = detallesVenta,
+                totalCompra = detallesVenta.values.sumOf { it.precioConDescuento * it.cantidad },
+                fechaVenta = ServerValue.TIMESTAMP
+            )
+
+            // Guardar la venta
+            dbVentas.child(vid).setValue(venta)
+
+            // Restar stock de los productos
+            productosSeleccionados.forEach { sel ->
                 restarStock(sel.producto.id, sel.cantidad)
             }
+
             Toast.makeText(this, "Venta(s) registrada(s)", Toast.LENGTH_SHORT).show()
             finish()
         }
+
     }
 
     private fun addItemRow(sel: ProductoSeleccionado) {
