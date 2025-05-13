@@ -55,19 +55,25 @@ class Ventas : AppCompatActivity() {
         adapter = VentaAdapter(
             ventasList,
             onEdit = { venta ->
-                Intent(this, EditarVenta::class.java).also {
-                    it.putExtra("VENTA_ID", venta.id)
-                    startActivity(it)
+                // Solo permitir editar ventas reales (no los encabezados)
+                if (venta.productos.isNotEmpty()) {
+                    Intent(this, EditarVenta::class.java).also {
+                        it.putExtra("VENTA_ID", venta.id)
+                        startActivity(it)
+                    }
                 }
             },
             onDelete = { venta ->
-                dbRef.child(venta.id).removeValue()
-                Toast.makeText(this, "Venta eliminada", Toast.LENGTH_SHORT).show()
+                // Solo permitir eliminar ventas reales (no los encabezados)
+                if (venta.productos.isNotEmpty()) {
+                    dbRef.child(venta.id).removeValue()
+                    Toast.makeText(this, "Venta eliminada", Toast.LENGTH_SHORT).show()
+                }
             }
         )
         recyclerView.adapter = adapter
 
-        // 4) Botón “Agregar Venta”
+        // 4) Botón "Agregar Venta"
         findViewById<Button>(R.id.btnAgregarVenta).setOnClickListener {
             startActivity(Intent(this, AgregarVenta::class.java))
         }
@@ -89,19 +95,17 @@ class Ventas : AppCompatActivity() {
                         }
                     }
 
-                    // Agrupar por fecha
-                    val porFecha = groupByDate(temp)
-
-                    ventasList.clear()
-                    porFecha.forEach { (fecha, ventas) ->
-                        // Encabezado de sección
-                        ventasList.add(Venta(id = fecha, totalCompra = 0.0, productos = mutableMapOf())) // Agregar encabezado de fecha
-                        ventasList.addAll(ventas)
+                    // Mostrar el emptyView si no hay ventas
+                    if (temp.isEmpty()) {
+                        ventasList.clear()
+                        adapter.notifyDataSetChanged()
+                        emptyView.visibility = View.VISIBLE
+                        return
                     }
-                    adapter.notifyDataSetChanged()
 
-                    emptyView.visibility =
-                        if (ventasList.isEmpty()) View.VISIBLE else View.GONE
+                    // Agrupar por fecha y actualizar la lista
+                    updateVentasList(temp)
+                    emptyView.visibility = View.GONE
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -114,32 +118,62 @@ class Ventas : AppCompatActivity() {
             })
     }
 
-    /** Agrupa las ventas en un map clave=“Hoy”/“Ayer”/fecha, valor=listado **/
+    /** Actualiza la lista de ventas agrupadas por fecha */
+    private fun updateVentasList(ventasFromDB: List<Venta>) {
+        ventasList.clear()
+
+        // Agrupar por fecha
+        val porFecha = groupByDate(ventasFromDB)
+
+        // Solo agregar fechas que tengan ventas
+        porFecha.forEach { (fecha, ventas) ->
+            if (ventas.isNotEmpty()) {
+                // Crear objeto especial para el encabezado de fecha con un identificador especial
+                val encabezado = Venta(
+                    id = "header_$fecha",  // Identificador especial para diferenciar encabezados
+                    fechaVenta = 0L,
+                    totalCompra = 0.0,
+                    productos = mutableMapOf()
+                )
+                ventasList.add(encabezado)
+
+                // Agregar las ventas reales de esta fecha
+                ventasList.addAll(ventas)
+            }
+        }
+
+        adapter.notifyDataSetChanged()
+    }
+
+    /** Agrupa las ventas en un map clave="Hoy"/"Ayer"/fecha, valor=listado **/
     private fun groupByDate(ventas: List<Venta>): Map<String, List<Venta>> {
-        val map = mutableMapOf<String, MutableList<Venta>>()
+        val result = mutableMapOf<String, MutableList<Venta>>()
         val hoy = formatDate(Date())
         val ayer = formatDate(getYesterday())
 
-        ventas.forEach { v ->
+        ventas.forEach { venta ->
             // Casteo seguro de la marca de tiempo
-            val ts = (v.fechaVenta as? Long) ?: 0L
-            val key = when (formatDate(ts)) {
+            val timestamp = (venta.fechaVenta as? Long) ?: 0L
+            val key = when (formatDate(timestamp)) {
                 hoy -> "Hoy"
                 ayer -> "Ayer"
-                else -> formatDate(ts)
+                else -> formatDate(timestamp)
             }
-            map.getOrPut(key) { mutableListOf() }.add(v)
+            // Solo agregar ventas que tienen productos
+            if (venta.productos.isNotEmpty()) {
+                result.getOrPut(key) { mutableListOf() }.add(venta)
+            }
         }
-        return map
+        return result
     }
 
-    // Formatea un timestamp (Long) a “dd MMM yyyy”
+    // Formatea un timestamp (Long) a "dd MMM yyyy"
     private fun formatDate(timestamp: Long): String {
         val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         return sdf.format(Date(timestamp))
     }
 
-    // Formatea un objeto Date a “dd MMM yyyy”
+    // Formatea un objeto Date a "dd MMM yyyy"
     private fun formatDate(date: Date): String {
         val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         return sdf.format(date)
@@ -151,4 +185,3 @@ class Ventas : AppCompatActivity() {
         }.time
     }
 }
-
