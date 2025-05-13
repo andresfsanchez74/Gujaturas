@@ -7,8 +7,6 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.gujaturas.R
-import com.example.gujaturas.Venta
 import com.google.firebase.database.*
 
 class VentaAdapter(
@@ -24,19 +22,23 @@ class VentaAdapter(
         private val txtTotalVenta: TextView = itemView.findViewById(R.id.tvPrecioVenta)  // Mostrar total de la venta
         private val btnEdit: ImageButton = itemView.findViewById(R.id.btnEditarVenta)
         private val btnDelete: ImageButton = itemView.findViewById(R.id.btnBorrarVenta)
+        // Ocultar el TextView que no queremos mostrar
+        private val txtNombreTallaCantidad: TextView = itemView.findViewById(R.id.tvNombreTallaCantidadProducto)
 
         fun bind(venta: Venta) {
+            // Ocultar el TextView principal que no queremos mostrar
+            txtNombreTallaCantidad.visibility = View.GONE
+
             // Limpiar los productos previos en el contenedor
             containerProductos.removeAllViews()
 
             // Iterar sobre los productos de la venta y agregarlos al contenedor
             venta.productos.forEach { (idProducto, detalleVenta) ->
-                // Inflar el layout para cada producto (usando el mismo layout de venta)
-                val row = LayoutInflater.from(itemView.context).inflate(R.layout.item_venta, null, false)
+                // Inflar un layout simple para cada producto (usar un layout diferente al de venta)
+                val row = LayoutInflater.from(itemView.context).inflate(R.layout.item_producto_en_venta, null, false)
 
-                // Obtener las vistas del producto
-                val txtNombreTallaCantidad: TextView = row.findViewById(R.id.tvNombreTallaCantidadProducto)
-                val txtPrecio: TextView = row.findViewById(R.id.tvPrecioVenta)
+                // Obtener la vista del producto (solo necesitamos el TextView del nombre)
+                val txtNombreProducto: TextView = row.findViewById(R.id.tvNombreProductoEnVenta)
 
                 // Obtener el producto desde Firebase usando el idProducto
                 dbRefProductos.child(idProducto).addListenerForSingleValueEvent(object : ValueEventListener {
@@ -46,10 +48,7 @@ class VentaAdapter(
                         producto?.let {
                             // Mostrar el nombre del producto, talla y cantidad vendida
                             val nombreConTallaYCantidad = "${it.nombre} - Talla ${it.talla} x${detalleVenta.cantidad}"
-                            txtNombreTallaCantidad.text = nombreConTallaYCantidad
-
-                            // Mostrar el precio del producto
-                            txtPrecio.text = "$${detalleVenta.precioLinea()}"
+                            txtNombreProducto.text = nombreConTallaYCantidad
                         }
                     }
 
@@ -58,7 +57,7 @@ class VentaAdapter(
                     }
                 })
 
-                // Agregar la fila al contenedor de productos (containerProductos)
+                // Agregar la fila al contenedor de productos
                 containerProductos.addView(row)
             }
 

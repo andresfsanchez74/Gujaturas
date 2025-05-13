@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="4dp">
+
+    <!-- Nombre del Producto, Talla y Cantidad-->
+    <TextView
+        android:id="@+id/tvNombreProductoEnVenta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Ruana Tejida Rosada - Talla M x1"
+        android:textSize="16sp"
+        android:fontFamily="@font/roboto_medium"
+        android:textColor="@color/gris_oscuro" />
+
+</LinearLayout>
