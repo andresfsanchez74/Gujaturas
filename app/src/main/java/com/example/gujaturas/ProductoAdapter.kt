@@ -28,7 +28,7 @@ class ProductoAdapter(
         private val priceFormat = DecimalFormat("#.##")
 
         fun bind(prod: Producto) {
-            txtNombre.text = "${prod.nombre} ${prod.descripcion} - ${prod.cantidad} Disponible"
+            txtNombre.text = "${prod.nombre} ${prod.descripcion} ${prod.color} - ${prod.cantidad} Disponible"
             txtTalla.text  = "Talla: ${prod.talla}"
             // 3) Precio sin ".0" si es entero, y sin ceros extras si decimal
             val strPrecio =
