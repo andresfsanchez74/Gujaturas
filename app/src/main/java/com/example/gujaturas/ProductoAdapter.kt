@@ -28,13 +28,13 @@ class ProductoAdapter(
         private val priceFormat = DecimalFormat("#.##")
 
         fun bind(prod: Producto) {
-            txtNombre.text = "${prod.nombre} ${prod.descripcion} ${prod.color} - ${prod.cantidad} Disponible"
+            txtNombre.text = "${prod.nombre} ${prod.descripcion} ${prod.color}"
             txtTalla.text  = "Talla: ${prod.talla}"
             // 3) Precio sin ".0" si es entero, y sin ceros extras si decimal
             val strPrecio =
                 if (prod.valor % 1.0 == 0.0) prod.valor.toInt().toString()
                 else priceFormat.format(prod.valor)
-            txtPrecio.text = "$$strPrecio"
+            txtPrecio.text = "$$strPrecio x${prod.cantidad}"
             prod.imagenUrl?.let { url ->
                 Glide.with(itemView.context)
                     .load(R.drawable.logo)
