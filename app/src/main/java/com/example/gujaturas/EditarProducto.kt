@@ -1,5 +1,6 @@
 package com.example.gujaturas
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -128,5 +129,39 @@ class EditarProducto : AppCompatActivity() {
             .addOnFailureListener {
                 Toast.makeText(this, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
             }
+    }
+    private fun setupFooter() {
+        val btnInventario = findViewById<LinearLayout>(R.id.navInventario)
+        val btnVentas = findViewById<LinearLayout>(R.id.navVentas)
+        val btnEstadisticas = findViewById<LinearLayout>(R.id.navEstadisticas)
+
+        val bgCircleInventario = findViewById<FrameLayout>(R.id.bgCircleInventario)
+        val bgCircleVentas = findViewById<FrameLayout>(R.id.bgCircleVentas)
+        val bgCircleEstadisticas = findViewById<FrameLayout>(R.id.bgCircleEstad)
+
+        bgCircleInventario.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+        bgCircleVentas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+        bgCircleEstadisticas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+
+        btnInventario.setOnClickListener {
+            bgCircleInventario.setBackgroundResource(R.drawable.bg_circle_nav_selected)
+            bgCircleVentas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+            bgCircleEstadisticas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+            startActivity(Intent(this, Inventario::class.java))
+        }
+
+        btnVentas.setOnClickListener {
+            bgCircleInventario.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+            bgCircleVentas.setBackgroundResource(R.drawable.bg_circle_nav_selected)
+            bgCircleEstadisticas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+            startActivity(Intent(this, Ventas::class.java))
+        }
+
+        btnEstadisticas.setOnClickListener {
+            bgCircleInventario.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+            bgCircleVentas.setBackgroundResource(R.drawable.bg_circle_nav_unselected)
+            bgCircleEstadisticas.setBackgroundResource(R.drawable.bg_circle_nav_selected)
+            startActivity(Intent(this, Estadisticas::class.java))
+        }
     }
 }
